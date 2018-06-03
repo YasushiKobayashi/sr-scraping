@@ -53,7 +53,7 @@ class Driver():
             self.login()
             self.comment()
 
-            app_log(targets + "count done")
+            app_log(target + "count done")
             self.driver.close()
         except Exception as e:
             self.driver.close()
