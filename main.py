@@ -75,11 +75,17 @@ class Driver():
     def comment(self):
         i = 0
         while True:
-            time.sleep(5)
+            time.sleep(2)
             i = i+1
             print(i)
             self.send_key_by_id('js-chat-input-comment', i)
-            self.driver.find_element_by_xpath("//*[@id='js-room-comment']//*[@type='submit']").click()
+            while True:
+                self.driver.find_element_by_xpath("//*[@id='js-room-comment']//*[@type='submit']").click()
+                val = self.find_element_by_id('js-chat-input-comment').get_attribute('value')
+                if val == '':
+                    break
+                else:
+                    time.sleep(2)
             if i == 50:
                 break
 
