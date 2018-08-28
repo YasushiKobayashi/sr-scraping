@@ -12,41 +12,35 @@ import (
 
 // Login
 func (d *DriverRepository) Login(user *model.User) (err error) {
-	preSess, err := d.GetSessID()
+	time.Sleep(5 * time.Second)
+	preSess, err := d.getSessID()
 	if err != nil {
 		return err
 	}
-	fmt.Println(preSess)
 
-	if err = d.RunScript("showLoginDialog();"); err != nil {
-		return err
-	}
-
-	err = d.SendKeyByJs("account_id", user.AccountId)
-	if err != nil {
-		return errors.Wrap(err, "SendKeyByJs account_id error")
-	}
-
-	err = d.SendKeyByJs("password", user.Password)
-	if err != nil {
-		return errors.Wrap(err, "SendKeyByJs password error")
-	}
-
+	maxloop := 10
 	for i := 0; ; {
 		i++
-		d.Click("#js-login-submit")
-
-		sess, err := d.GetSessID()
-		if err != nil {
-			return err
+		err = d.login(user)
+		if err != nil && i == maxloop {
+			return errors.Wrap(err, "login error")
 		}
 
-		if sess != preSess {
+		err = d.Click("#js-login-submit")
+		if err != nil && i == maxloop {
+			return errors.Wrap(err, "submit error")
+		}
+
+		isLoggedin, err := d.isLoggedin(preSess)
+		if err != nil && i == maxloop {
+			return errors.Wrap(err, "isLoggedin error")
+		}
+		if isLoggedin {
 			break
 		}
 
 		time.Sleep(1 * time.Second)
-		if i == 10 {
+		if i == maxloop {
 			return errors.New("login faile")
 		}
 	}
@@ -54,7 +48,44 @@ func (d *DriverRepository) Login(user *model.User) (err error) {
 	return nil
 }
 
-func (d *DriverRepository) GetSessID() (res string, err error) {
+func (d *DriverRepository) login(user *model.User) (err error) {
+	if err = d.RunScript("showLoginDialog();"); err != nil {
+		return errors.Wrap(err, "RunScript showLoginDialog error")
+	}
+
+	err = d.SendKey("#js-login-form input[name='account_id']", user.AccountId)
+	if err != nil {
+		return errors.Wrap(err, "SendKeyByJs account_id error")
+	}
+
+	err = d.SendKey("#js-login-form input[name='password']", user.Password)
+	if err != nil {
+		return errors.Wrap(err, "SendKeyByJs password error")
+	}
+	return nil
+}
+
+func (d *DriverRepository) isLoggedin(preSess string) (res bool, err error) {
+	selID := "#js-login-error"
+	text, err := d.GetText(selID)
+	if err != nil {
+		return false, errors.Wrap(err, "GetText error")
+	}
+
+	fmt.Println(text)
+	if text != "" {
+		return true, nil
+	}
+
+	sess, err := d.getSessID()
+	if err != nil {
+		return false, errors.Wrap(err, "getSessID account_id error")
+	}
+
+	return (sess != preSess), nil
+}
+
+func (d *DriverRepository) getSessID() (res string, err error) {
 	sessKey := "sr_id"
 
 	var wg sync.WaitGroup
@@ -72,6 +103,5 @@ func (d *DriverRepository) GetSessID() (res string, err error) {
 		}(v)
 	}
 	wg.Wait()
-
 	return res, nil
 }

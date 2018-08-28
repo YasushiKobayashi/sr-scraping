@@ -43,7 +43,7 @@ func (d *DriverRepository) ClickByXPath(sel string) error {
 	return nil
 }
 
-func (d *DriverRepository) SendKeyById(sel string, val string) error {
+func (d *DriverRepository) SendKey(sel string, val string) error {
 	err := d.Find(sel).Fill(val)
 	if err != nil {
 		return err
@@ -58,6 +58,15 @@ func (d *DriverRepository) GetById(sel string, val string) {
 
 func (d *DriverRepository) GetValue(sel string) (val string, err error) {
 	val, err = d.Find(sel).Attribute("value")
+	if err != nil {
+		return val, err
+	}
+
+	return val, nil
+}
+
+func (d *DriverRepository) GetText(sel string) (val string, err error) {
+	val, err = d.Find(sel).Text()
 	if err != nil {
 		return val, err
 	}

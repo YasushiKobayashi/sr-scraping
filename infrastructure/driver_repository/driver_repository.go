@@ -29,9 +29,7 @@ func (d *DriverRepository) startChrome() (res *agouti.WebDriver, err error) {
 }
 
 func (d *DriverRepository) startChromeDriver() (res *agouti.WebDriver, err error) {
-	args := []string{
-		"--window-size=1280,800",
-	}
+	args := []string{}
 	if d.Headless {
 		args = append(args, "--headless")
 	}

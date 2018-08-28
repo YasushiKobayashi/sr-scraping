@@ -27,15 +27,17 @@ func (d *DriverRepository) Count(user *model.User, target string) error {
 func (d *DriverRepository) runCount(user *model.User, target string) (err error) {
 	log.Println(target)
 	if err = d.P.Navigate(baseUrl + target); err != nil {
-		return err
+		return errors.Wrap(err, "Navigate error")
 	}
 
 	if err = d.Login(user); err != nil {
-		return err
+		return errors.Wrap(err, "Login error")
 	}
+	fmt.Println("target")
+	fmt.Println(target)
 
 	if err = d.count(target); err != nil {
-		return err
+		return errors.Wrap(err, "count error")
 	}
 	return nil
 }
@@ -53,7 +55,7 @@ func (d *DriverRepository) count(target string) (err error) {
 	for i := 1; i <= 50; i++ {
 		time.Sleep(2 * time.Second)
 
-		err = d.SendKeyById(input, fmt.Sprint(i))
+		err = d.SendKey(input, fmt.Sprint(i))
 		if err != nil {
 			return errors.Wrap(err, "SendKeyById error")
 		}
@@ -71,6 +73,15 @@ func (d *DriverRepository) count(target string) (err error) {
 
 			if val != "" {
 				break
+			}
+
+			err = d.SendKey(input, "")
+			if err != nil {
+				return errors.Wrap(err, "SendKeyById error")
+			}
+			err = d.SendKey(input, fmt.Sprint(i))
+			if err != nil {
+				return errors.Wrap(err, "SendKeyById error")
 			}
 			time.Sleep(2 * time.Second)
 		}
