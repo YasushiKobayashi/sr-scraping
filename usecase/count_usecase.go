@@ -1,9 +1,8 @@
 package usecase
 
 import (
-	"fmt"
+	"log"
 	"sync"
-	"time"
 
 	"github.com/YasushiKobayashi/countrobu/model"
 	"github.com/pkg/errors"
@@ -47,10 +46,9 @@ func (i *CountInteractor) countOnLive(actors []string, user *model.User, paralle
 			defer func() { <-ch }()
 			err := i.Repository.Count(user, v)
 			if err != nil {
-				fmt.Println(err)
+				log.Printf("count %+v", err)
 			}
 
-			time.Sleep(2 * time.Second)
 			wg.Done()
 		}(v)
 	}

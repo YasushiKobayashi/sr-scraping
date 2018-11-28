@@ -33,9 +33,8 @@ func (d *DriverRepository) runCount(user *model.User, target string) (err error)
 	if err = d.Login(user); err != nil {
 		return errors.Wrap(err, "Login error")
 	}
-	fmt.Println("target")
-	fmt.Println(target)
 
+	log.Printf("count start for %s ", target)
 	if err = d.count(target); err != nil {
 		return errors.Wrap(err, "count error")
 	}
