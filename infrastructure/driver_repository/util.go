@@ -70,6 +70,13 @@ func (d *DriverRepository) GetText(sel string) (val string, err error) {
 	if err != nil {
 		return val, err
 	}
-
 	return val, nil
+}
+
+func (d *DriverRepository) isOnLive() (bool, error) {
+	// text, _ := d.P.HTML()
+	// fmt.Println(text)
+	// return false, errors.New("a")
+	path := "//*[@id='icon-room-twitter-wrapper']"
+	return d.P.FindByXPath(path).Visible()
 }

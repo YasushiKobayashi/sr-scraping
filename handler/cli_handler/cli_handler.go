@@ -30,4 +30,5 @@ func margeBaseFlag(f []cli.Flag) []cli.Flag {
 
 var Commands = []cli.Command{
 	countAllfollow,
+	getStars,
 }

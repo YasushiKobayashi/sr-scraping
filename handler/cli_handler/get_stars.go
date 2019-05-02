@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-var countAllfollowFlag []cli.Flag = []cli.Flag{
+var getStarsFlag []cli.Flag = []cli.Flag{
 	cli.StringFlag{
 		Name:  "line, l",
 		Value: "1",
@@ -18,24 +18,24 @@ var countAllfollowFlag []cli.Flag = []cli.Flag{
 	},
 }
 
-var countAllfollow = cli.Command{
-	Name:    "count-all-follow",
-	Aliases: []string{"all"},
+var getStars = cli.Command{
+	Name:    "get-stars",
+	Aliases: []string{"stars"},
 	Usage:   "...",
 	Description: `
 `,
-	Action: countAllfollowHandler,
-	Flags:  margeBaseFlag(countAllfollowFlag),
+	Action: getStarsHandler,
+	Flags:  margeBaseFlag(getStarsFlag),
 }
 
 type (
-	CountHandler struct {
+	GetStarsHandler struct {
 		Interactor usecase.ShowRoomInteractor
 	}
 )
 
-func NewCountHandler(headless bool) *CountHandler {
-	return &CountHandler{
+func NewGetStarsHandler(headless bool) *GetStarsHandler {
+	return &GetStarsHandler{
 		Interactor: usecase.ShowRoomInteractor{
 			Repository: &driver_repository.DriverRepository{
 				Headless: headless,
@@ -44,7 +44,7 @@ func NewCountHandler(headless bool) *CountHandler {
 	}
 }
 
-func countAllfollowHandler(c *cli.Context) error {
+func getStarsHandler(c *cli.Context) error {
 	accountId := c.String("account")
 	password := c.String("password")
 	line := c.String("line")
@@ -59,8 +59,8 @@ func countAllfollowHandler(c *cli.Context) error {
 		return cli.NewExitError(err, 128)
 	}
 
-	handler := NewCountHandler(c.Bool("headless"))
-	err = handler.Interactor.Count(user, paralleLine)
+	handler := NewGetStarsHandler(c.Bool("headless"))
+	err = handler.Interactor.GetStars(user, paralleLine)
 	if err != nil {
 		return cli.NewExitError(err, 128)
 	}

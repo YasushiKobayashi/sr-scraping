@@ -9,17 +9,18 @@ import (
 )
 
 type (
-	CountInteractor struct {
-		Repository CountDriverRepository
+	ShowRoomInteractor struct {
+		Repository ShowRoomRepository
 	}
 
-	CountDriverRepository interface {
+	ShowRoomRepository interface {
 		Count(*model.User, string) error
 		GetFollowsOnlive(*model.User) ([]string, error)
+		GetStars(*model.User) error
 	}
 )
 
-func (i *CountInteractor) Count(user *model.User, paralleLine int) error {
+func (i *ShowRoomInteractor) Count(user *model.User, paralleLine int) error {
 	actors, err := i.getFollowsOnlive(user)
 	if err != nil {
 		return errors.Wrap(err, "GetFollowsOnlive error")
@@ -28,7 +29,7 @@ func (i *CountInteractor) Count(user *model.User, paralleLine int) error {
 	return nil
 }
 
-func (i *CountInteractor) getFollowsOnlive(user *model.User) ([]string, error) {
+func (i *ShowRoomInteractor) getFollowsOnlive(user *model.User) ([]string, error) {
 	actors, err := i.Repository.GetFollowsOnlive(user)
 	if err != nil {
 		return actors, errors.Wrap(err, "GetFollowsOnlive error")
@@ -36,7 +37,7 @@ func (i *CountInteractor) getFollowsOnlive(user *model.User) ([]string, error) {
 	return actors, nil
 }
 
-func (i *CountInteractor) countOnLive(actors []string, user *model.User, paralleLine int) error {
+func (i *ShowRoomInteractor) countOnLive(actors []string, user *model.User, paralleLine int) error {
 	ch := make(chan bool, paralleLine)
 	var wg sync.WaitGroup
 	for _, v := range actors {
@@ -54,5 +55,13 @@ func (i *CountInteractor) countOnLive(actors []string, user *model.User, paralle
 	}
 
 	wg.Wait()
+	return nil
+}
+
+func (i *ShowRoomInteractor) GetStars(user *model.User, paralleLine int) error {
+	err := i.Repository.GetStars(user)
+	if err != nil {
+		return errors.Wrap(err, "GetFollowsOnlive error")
+	}
 	return nil
 }

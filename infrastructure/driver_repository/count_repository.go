@@ -52,7 +52,17 @@ func (d *DriverRepository) count(target string) (err error) {
 
 	time.Sleep(5 * time.Second)
 	for i := 1; i <= 50; i++ {
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
+
+		isOnLive, err := d.isOnLive()
+		if err != nil {
+			return errors.Wrap(err, "IsOnLive error")
+		}
+
+		if !isOnLive {
+			log.Printf("%s live is end", target)
+			return nil
+		}
 
 		err = d.SendKey(input, fmt.Sprint(i))
 		if err != nil {
